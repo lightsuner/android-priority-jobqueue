@@ -92,6 +92,12 @@ public class Params {
         return this;
     }
 
+    public Params singleInstanceBy(String singleId, boolean singleIdPreferNew) {
+        this.singleId = singleId;
+        this.singleIdPreferNew = singleIdPreferNew;
+        return this;
+    }
+
     /**
      * Marks the job as persistent. Make sure your job is serializable.
      *

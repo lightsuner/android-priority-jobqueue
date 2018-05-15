@@ -133,7 +133,12 @@ class JobManagerThread implements Runnable, NetworkEventProvider.Listener {
                 .runningSessionId(NOT_RUNNING_SESSION_ID).build();
 
         JobHolder oldJob = findJobBySingleId(job.getSingleInstanceId());
-        final boolean insert = oldJob == null || consumerManager.isJobRunning(oldJob.getId());
+        final boolean insert = (
+                oldJob == null ||
+                consumerManager.isJobRunning(oldJob.getId()) ||
+                job.isSingleIdPreferNew()
+        );
+
         if (insert) {
             JobQueue queue = job.isPersistent() ? persistentJobQueue : nonPersistentJobQueue;
             if (oldJob != null) { //the other job was running, will be cancelled if it fails

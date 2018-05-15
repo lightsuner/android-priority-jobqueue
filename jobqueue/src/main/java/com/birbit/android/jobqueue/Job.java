@@ -34,6 +34,7 @@ abstract public class Job implements Serializable {
     private transient String groupId;
     private transient boolean persistent;
     private transient Set<String> readonlyTags;
+    private transient boolean singleIdPreferNew = false;
 
     private transient int currentRunCount;
     /**package**/ transient int priority;
@@ -64,6 +65,7 @@ abstract public class Job implements Serializable {
         if (params.getTags() != null || singleId != null) {
             final Set<String> tags = params.getTags() != null ? params.getTags() : new HashSet<String>();
             if (singleId != null) {
+                this.singleIdPreferNew = params.getSingleIdPreferNew();
                 final String tagForSingleId = createTagForSingleId(singleId);
                 tags.add(tagForSingleId);
                 if (this.groupId == null) {
@@ -317,6 +319,10 @@ abstract public class Job implements Serializable {
             }
         }
         return null;
+    }
+
+    public final boolean isSingleIdPreferNew() {
+        return singleIdPreferNew;
     }
 
     private String createTagForSingleId(String singleId) {

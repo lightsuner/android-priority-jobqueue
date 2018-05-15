@@ -23,9 +23,10 @@ public class Params {
     public static final long NEVER = Long.MIN_VALUE;
 
     @NetworkUtil.NetworkStatus
-    /* package */int requiredNetworkType = NetworkUtil.DISCONNECTED;
+    /* package */ int requiredNetworkType = NetworkUtil.DISCONNECTED;
     private String groupId = null;
     private String singleId = null;
+    private boolean singleIdPreferNew = false;
     private boolean persistent = false;
     private int priority;
     private long delayMs;
@@ -34,7 +35,6 @@ public class Params {
     private Boolean cancelOnDeadline; // this also serve as a field set check
 
     /**
-     *
      * @param priority higher = better
      */
     public Params(int priority) {
@@ -45,6 +45,7 @@ public class Params {
      * Sets the Job as requiring network.
      * <p>
      * This method has no effect if you've already called {@link #requireUnmeteredNetwork()}.
+     *
      * @return this
      */
     public Params requireNetwork() {
@@ -56,6 +57,7 @@ public class Params {
 
     /**
      * Sets the Job as requiring UNMETERED network.
+     *
      * @return this
      */
     public Params requireUnmeteredNetwork() {
@@ -65,6 +67,7 @@ public class Params {
 
     /**
      * Sets the group id. Jobs in the same group are guaranteed to execute sequentially.
+     *
      * @param groupId which group this job belongs (can be null of course)
      * @return this
      */
@@ -75,10 +78,12 @@ public class Params {
 
     /**
      * Sets the single instance id. If there is another Job with the same single id queued and
-     * not yet running, this Job will get {@link Job#onCancel(int, Throwable)} called immediately after
+     * not yet running, this Job will get {@link Job#onCancel(int, Throwable)} called immediately
+     * after
      * {@link Job#onAdded()} and only the previous Job will run. That is, {@link Job#onRun()}
      * will only be called once.
      * <p>If no group id was set, one will be set automatically.
+     *
      * @param singleId which single instance group this job belongs to (can be null of course)
      * @return this
      */
@@ -89,6 +94,7 @@ public class Params {
 
     /**
      * Marks the job as persistent. Make sure your job is serializable.
+     *
      * @return this
      */
     public Params persist() {
@@ -98,6 +104,7 @@ public class Params {
 
     /**
      * Delays the job in given ms.
+     *
      * @param delayMs .
      * @return this
      */
@@ -140,7 +147,7 @@ public class Params {
     public Params setRequiresUnmeteredNetwork(boolean requiresUnmeteredNetwork) {
         if (requiresUnmeteredNetwork) {
             this.requiredNetworkType = NetworkUtil.UNMETERED;
-        } else if (this.requiredNetworkType != NetworkUtil.METERED){
+        } else if (this.requiredNetworkType != NetworkUtil.METERED) {
             this.requiredNetworkType = NetworkUtil.DISCONNECTED;
         }
         return this;
@@ -148,6 +155,7 @@ public class Params {
 
     /**
      * convenience method to set group id.
+     *
      * @param groupId The group id for the job
      * @return this
      */
@@ -158,6 +166,7 @@ public class Params {
 
     /**
      * convenience method to set single id.
+     *
      * @param singleId The single instance run id for the job
      * @return this
      */
@@ -166,8 +175,15 @@ public class Params {
         return this;
     }
 
+    public Params setSingleId(String singleId, boolean singleIdPreferNew) {
+        this.singleId = singleId;
+        this.singleIdPreferNew = singleIdPreferNew;
+        return this;
+    }
+
     /**
      * convenience method to set whether {@link JobManager} should persist this job or not.
+     *
      * @param persistent true|false
      * @return this
      */
@@ -178,6 +194,7 @@ public class Params {
 
     /**
      * convenience method to set delay
+     *
      * @param delayMs in ms
      * @return this
      */
@@ -194,7 +211,7 @@ public class Params {
      * @return this
      */
     public Params addTags(String... newTags) {
-        if(tags == null) {
+        if (tags == null) {
             tags = new HashSet<>();
         }
         Collections.addAll(tags, newTags);
@@ -209,10 +226,10 @@ public class Params {
      */
     @SuppressWarnings("unused")
     public Params removeTags(String... oldTags) {
-        if(tags == null) {
+        if (tags == null) {
             return this;
         }
-        for(String tag : oldTags) {
+        for (String tag : oldTags) {
             tags.remove(tag);
         }
         return this;
@@ -237,15 +254,13 @@ public class Params {
      * If you call this method, you cannot call {@link #overrideDeadlineToCancelInMs(long)}.
      *
      * @param deadlineInMs The deadline in milliseconds for the constraints.
-     *
      * @return this
-     *
      * @see #overrideDeadlineToCancelInMs(long)
      */
     public Params overrideDeadlineToRunInMs(long deadlineInMs) {
         if (Boolean.TRUE.equals(cancelOnDeadline)) {
-            throw new IllegalArgumentException("cannot set deadline to cancel and run. You need" +
-                    " to pick one");
+            throw new IllegalArgumentException(
+                    "cannot set deadline to cancel and run. You need" + " to pick one");
         }
         deadlineMs = deadlineInMs;
         cancelOnDeadline = false;
@@ -268,15 +283,13 @@ public class Params {
      * If you call this method, you cannot call {@link #overrideDeadlineToRunInMs(long)}.
      *
      * @param deadlineInMs The deadline in milliseconds for the constraints.
-     *
      * @return this
-     *
      * @see #overrideDeadlineToRunInMs(long)
      */
     public Params overrideDeadlineToCancelInMs(long deadlineInMs) {
         if (Boolean.FALSE.equals(cancelOnDeadline)) {
-            throw new IllegalArgumentException("cannot set deadline to cancel and run. You need" +
-                    " to pick one");
+            throw new IllegalArgumentException(
+                    "cannot set deadline to cancel and run. You need" + " to pick one");
         }
         deadlineMs = deadlineInMs;
         cancelOnDeadline = true;
@@ -289,6 +302,10 @@ public class Params {
 
     public String getSingleId() {
         return singleId;
+    }
+
+    public boolean getSingleIdPreferNew() {
+        return singleIdPreferNew;
     }
 
     public boolean isPersistent() {

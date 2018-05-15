@@ -8,7 +8,7 @@ if (releaseFile.exists()) {
     releaseConfig.load(new FileInputStream(releaseFile))
 }
 // for jitpack
-group='com.github.yigit'
+group='com.github.lightsuner'
 ext.releaseConfig = releaseConfig
 
 task wrapper(type: Wrapper) {
